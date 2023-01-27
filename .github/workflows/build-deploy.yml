@@ -40,5 +40,4 @@ jobs:
         script: |
           docker stop xekoshop || echo "Container already stopped. Skipping..."
           docker container rm xekoshop || echo "Container does not exist. Skipping..."
-          docker rmi xekoshop || echo "Image does not exist. Skipping..."
           docker run -d --restart always --name xekoshop -p 5000:5000 xekoshop
