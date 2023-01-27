@@ -14,4 +14,8 @@ WORKDIR /app
 
 # Copy build files from the build-env
 COPY --from=build-env /app .
+
+ENV ASPNETCORE_URLS=http://0.0.0.0:5000
+EXPOSE 5000
+
 ENTRYPOINT ["./xekoshop"]
