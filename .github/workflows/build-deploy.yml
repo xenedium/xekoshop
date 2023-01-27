@@ -1,0 +1,33 @@
+name: Build-Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Add MSSQL Database Connection String to appsettings.json
+      env:
+        DATABASE_CONNEXSTR: ${{ secrets.DATABASE_CONNEXSTR }}
+      run: sed -i "s/DATABASE_CONNEXSTR/$DATABASE_CONNEXSTR/g" appsettings.json
+      
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag xekoshop
+      
+    - name: SSH Setup
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      run: |
+        mkdir -p .ssh
+        chmod 700 .ssh
+        echo "$SSH_PRIVATE_KEY" > .ssh/id_rsa
+        chmod 600 .ssh/id_rsa
+        
+    - name: Import exported docker image to VPS
+      run: docker save xekoshop:latest | ssh -i .ssh/id_rsa -o "StrictHostKeyChecking no" -C ${{ secrets.SSH_USER_HOST }} docker load
+      
