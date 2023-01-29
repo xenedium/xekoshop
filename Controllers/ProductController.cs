@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using xekoshop.Models;
 
 namespace xekoshop.Controllers
 {
+    [Authorize(Roles = "Administrator")]
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,7 +24,6 @@ namespace xekoshop.Controllers
         // GET: Product
         public async Task<IActionResult> Index()
         {
-            System.Console.WriteLine("ProductController.Index()");
               return _context.Product != null ? 
                           View(await _context.Product.ToListAsync()) :
                           Problem("Entity set 'ApplicationDbContext.Product'  is null.");
