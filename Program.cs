@@ -57,10 +57,6 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.Use((context, next) => {    // App is always run in https in production
-        context.Request.Scheme = "https";
-        return next(context);
-    });
     app.UseForwardedHeaders();
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
