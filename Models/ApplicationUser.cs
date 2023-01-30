@@ -4,6 +4,6 @@ namespace xekoshop.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        
+        public Cart Cart { get; set; } = new Cart();
     }
 }

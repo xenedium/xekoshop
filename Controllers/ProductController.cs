@@ -11,7 +11,7 @@ using xekoshop.Models;
 
 namespace xekoshop.Controllers
 {
-    [Authorize(Roles = "Administrator")]
+    [Authorize]
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -48,6 +48,7 @@ namespace xekoshop.Controllers
         }
 
         // GET: Product/Create
+        [Authorize(Roles = "Administrator")]
         public IActionResult Create()
         {
             return View();
@@ -58,7 +59,8 @@ namespace xekoshop.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Image,Price,Quantity,CreatedAt,UpdatedAt")] Product product)
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,Image,Price,Quantity")] Product product)
         {
             if (ModelState.IsValid)
             {
@@ -70,6 +72,7 @@ namespace xekoshop.Controllers
         }
 
         // GET: Product/Edit/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Product == null)
@@ -90,12 +93,16 @@ namespace xekoshop.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Image,Price,Quantity,CreatedAt,UpdatedAt")] Product product)
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Image,Price,Quantity")] Product product)
         {
             if (id != product.Id)
             {
                 return NotFound();
             }
+
+            // Keep the original CreatedAt value.
+            product.CreatedAt = await _context.Product.Where(p => p.Id == id).Select(p => p.CreatedAt).FirstOrDefaultAsync();
 
             if (ModelState.IsValid)
             {
@@ -121,6 +128,7 @@ namespace xekoshop.Controllers
         }
 
         // GET: Product/Delete/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Product == null)
@@ -141,6 +149,7 @@ namespace xekoshop.Controllers
         // POST: Product/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Product == null)

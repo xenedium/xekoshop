@@ -9,6 +9,6 @@ public class Product
     public string Image { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public int Quantity { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime UpdatedAt { get; set; } = DateTime.Now;
 }

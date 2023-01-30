@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using xekoshop.Data;
 
@@ -11,9 +12,11 @@ using xekoshop.Data;
 namespace xekoshop.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230130173142_AddedQttyAndTotalCart")]
+    partial class AddedQttyAndTotalCart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,8 +36,14 @@ namespace xekoshop.Data.Migrations
                     b.Property<int>("ArticleCount")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -42,8 +51,7 @@ namespace xekoshop.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Cart");
                 });
@@ -322,8 +330,8 @@ namespace xekoshop.Data.Migrations
             modelBuilder.Entity("Cart", b =>
                 {
                     b.HasOne("xekoshop.Models.ApplicationUser", "User")
-                        .WithOne("Cart")
-                        .HasForeignKey("Cart", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -403,12 +411,6 @@ namespace xekoshop.Data.Migrations
             modelBuilder.Entity("Cart", b =>
                 {
                     b.Navigation("CartLines");
-                });
-
-            modelBuilder.Entity("xekoshop.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("Cart")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
