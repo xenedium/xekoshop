@@ -134,6 +134,7 @@ namespace xekoshop.Areas.Identity.Pages.Account
                     {
                         Email = info.Principal.FindFirstValue(ClaimTypes.Email)
                     };
+                    return await OnPostConfirmationAsync();
                 }
                 return Page();
             }
