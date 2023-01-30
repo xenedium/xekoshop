@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Add MSSQL Database Connection String to appsettings.json
+    - name: Add Secrets to appsettings.json
       env:
         DATABASE_CONNEXSTR: ${{ secrets.DATABASE_CONNEXSTR }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
@@ -46,4 +46,4 @@ jobs:
         script: |
           docker stop xekoshop || echo "Container already stopped. Skipping..."
           docker container rm xekoshop || echo "Container does not exist. Skipping..."
-          docker run -d --restart always --name xekoshop -p 5000:5000 xekoshop
+          docker run -d --restart always --name xekoshop -p 5000:5000 -p 5001:5001 xekoshop
