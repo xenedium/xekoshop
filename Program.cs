@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using xekoshop.Data;
 using System.Net;
 using xekoshop.Models;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,17 +35,13 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
 builder.Services.AddControllersWithViews();
 
 builder.Services.Configure<ForwardedHeadersOptions>(options => {
-    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.All;
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost;
     options.KnownProxies.Add(IPAddress.Parse("127.0.0.1"));  // No Load Balancers just NGINX Reverse Proxy
+    options.ForwardLimit = null;
 });
 
 builder.Services.AddAuthentication()
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Account/Login";
-        options.LogoutPath = "/Account/Logout";
-        options.AccessDeniedPath = "/Account/AccessDenied";
-    })
+    .AddCookie()
     .AddGoogle(options =>
     {
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? throw new InvalidOperationException("Google Client ID not found.");
@@ -60,6 +57,10 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
+    app.Use((context, next) => {    // App is always run in https in production
+        context.Request.Scheme = "https";
+        return next(context);
+    });
     app.UseForwardedHeaders();
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
