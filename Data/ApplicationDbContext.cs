@@ -11,4 +11,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
     }
     public DbSet<xekoshop.Models.Product> Product { get; set; } = default!;
+    public DbSet<Cart> Cart { get; set; } = default!;
+    public DbSet<xekoshop.Models.CartLine> CartLine { get; set; } = default!;
 }
