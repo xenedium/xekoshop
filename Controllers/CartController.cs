@@ -31,7 +31,6 @@ namespace xekoshop.Controllers
         }
 
         // GET: Cart/Details/5
-        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -40,10 +39,6 @@ namespace xekoshop.Controllers
                 .Include(c => c.CartLines)
                 .ThenInclude(cl => cl.Product)
                 .FirstAsync(m => m.Id == id);
-            if (cart == null)
-            {
-                return NotFound();
-            }
 
             return View(cart);
         }

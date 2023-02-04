@@ -46,8 +46,7 @@ builder.Services.AddAuthentication()
         options.Cookie.SameSite = SameSiteMode.Strict;
         options.Cookie.IsEssential = true;
     })
-    .AddGoogle(options =>
-    {
+    .AddGoogle(options => {
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? throw new InvalidOperationException("Google Client ID not found.");
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? throw new InvalidOperationException("Google Client Secret not found.");
     });

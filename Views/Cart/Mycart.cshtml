@@ -7,31 +7,57 @@
 
 <h1>My cart</h1>
 
-<table class="table">
+<div>
+    <h5>
+        Total Price: @Html.DisplayFor(modelItem => Model.TotalPrice)
+    </h5>
+    <h5>
+        Article Count: @Html.DisplayFor(modelItem => Model.ArticleCount)
+    </h5>
+</div>
+
+<table class="table table-striped">
     <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ArticleCount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalPrice)
-            </th>
-        </tr>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.CartLines.First().Product.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CartLines.First().Product.Image)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CartLines.First().Quantity)
+        </th>
+        <th>
+            Cost
+        </th>
+        <th>
+            Operation
+        </th>
+    </tr>
     </thead>
     <tbody>
+    @foreach (var item in Model.CartLines) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => Model.User.Email)
+                @Html.DisplayFor(modelItem => item.Product.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => Model.ArticleCount)
+                <img src="@item.Product.Image" alt="@item.Product.Name" width="150" height="150" />
             </td>
             <td>
-                @Html.DisplayFor(modelItem => Model.TotalPrice)
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            <td>
+                @(item.Quantity*item.Product.Price)
+            </td>
+            <td>
+                <form asp-controller="CartLine" asp-action="Delete">
+                    <input hidden="hidden" value="@item.Id" asp-for="Id" />
+                    <button type="submit" class="btn btn-danger">Remove</button>
+                </form>
             </td>
         </tr>
+    }
     </tbody>
 </table>
