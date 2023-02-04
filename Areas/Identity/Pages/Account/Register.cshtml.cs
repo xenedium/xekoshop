@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using xekoshop.Interfaces;
 using xekoshop.Models;
 
 namespace xekoshop.Areas.Identity.Pages.Account
@@ -30,12 +32,14 @@ namespace xekoshop.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly IDiscordWebhook _discordWebhook;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
+            IDiscordWebhook discordWebhook,
             IEmailSender emailSender)
         {
             _userManager = userManager;
@@ -43,6 +47,7 @@ namespace xekoshop.Areas.Identity.Pages.Account
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
+            _discordWebhook = discordWebhook;
             _emailSender = emailSender;
         }
 
@@ -103,6 +108,12 @@ namespace xekoshop.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+            await _discordWebhook.SendWebhook($"```json\n{JsonConvert.SerializeObject(new
+            {
+                RequestType = "Register Request",
+                ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                UserAgent = Request.Headers.UserAgent.ToString()
+            }, Formatting.Indented)}```");
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -121,6 +132,15 @@ namespace xekoshop.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
+                    await _discordWebhook.SendWebhook($"```json\n{JsonConvert.SerializeObject(new
+                    {
+                        RequestType = "Register Success",
+                        user.Id,
+                        user.UserName,
+                        user.Email,
+                        ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                        UserAgent = Request.Headers.UserAgent.ToString()
+                    }, Formatting.Indented)}```");
                     _logger.LogInformation("User created a new account with password.");
 
                     var userId = await _userManager.GetUserIdAsync(user);

@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using xekoshop.Interfaces;
 using xekoshop.Models;
 
 namespace xekoshop.Controllers;
@@ -9,19 +12,34 @@ namespace xekoshop.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IDiscordWebhook _discordWebhook;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IDiscordWebhook discordWebhook, UserManager<ApplicationUser> userManager)
     {
         _logger = logger;
+        _discordWebhook = discordWebhook;
+        _userManager = userManager;
     }
 
     public IActionResult Index()
     {
         return View();
     }
-
-    public IActionResult Privacy()
+    
+    public async Task<IActionResult> RequestAdmin()
     {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return NotFound();
+        await _discordWebhook.SendWebhook($"@everyone\n```json\n{JsonConvert.SerializeObject(new
+        {
+            RequestType = "Admin Request",
+            user.Id,
+            user.UserName,
+            user.Email,
+            ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+            UserAgent = Request.Headers.UserAgent.ToString()
+        }, Formatting.Indented)}```");
         return View();
     }
 

@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using xekoshop.Interfaces;
 using xekoshop.Models;
 
 namespace xekoshop.Areas.Identity.Pages.Account
@@ -29,6 +31,7 @@ namespace xekoshop.Areas.Identity.Pages.Account
         private readonly IUserStore<ApplicationUser> _userStore;
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly IEmailSender _emailSender;
+        private readonly IDiscordWebhook _discordWebhook;
         private readonly ILogger<ExternalLoginModel> _logger;
 
         public ExternalLoginModel(
@@ -36,6 +39,7 @@ namespace xekoshop.Areas.Identity.Pages.Account
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             ILogger<ExternalLoginModel> logger,
+            IDiscordWebhook discordWebhook,
             IEmailSender emailSender)
         {
             _signInManager = signInManager;
@@ -43,6 +47,7 @@ namespace xekoshop.Areas.Identity.Pages.Account
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _logger = logger;
+            _discordWebhook = discordWebhook;
             _emailSender = emailSender;
         }
 
@@ -116,6 +121,16 @@ namespace xekoshop.Areas.Identity.Pages.Account
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
             if (result.Succeeded)
             {
+                await _discordWebhook.SendWebhook($"```json\n{JsonConvert.SerializeObject(new
+                {
+                    RequestType = "Login Success",
+                    LoginType = "OAUTH",
+                    Name = info.Principal.Identity?.Name ?? "Unknown",
+                    Email = info.Principal.FindFirstValue(ClaimTypes.Email) ?? "Unknown",
+                    Provider = info.LoginProvider,
+                    ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                    UserAgent = Request.Headers.UserAgent.ToString()
+                }, Formatting.Indented)}```");
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
                 return LocalRedirect(returnUrl);
             }
@@ -164,6 +179,16 @@ namespace xekoshop.Areas.Identity.Pages.Account
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
+                        await _discordWebhook.SendWebhook($"```json\n{JsonConvert.SerializeObject(new
+                        {
+                            RequestType = "Register Success",
+                            LoginType = "OAUTH",
+                            Name = info.Principal.Identity?.Name ?? "Unknown",
+                            Email = info.Principal.FindFirstValue(ClaimTypes.Email) ?? "Unknown",
+                            Provider = info.LoginProvider,
+                            ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                            UserAgent = Request.Headers.UserAgent.ToString()
+                        }, Formatting.Indented)}```");
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
                         var userId = await _userManager.GetUserIdAsync(user);

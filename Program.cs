@@ -4,10 +4,20 @@ using xekoshop.Data;
 using System.Net;
 using xekoshop.Models;
 using Microsoft.AspNetCore.HttpOverrides;
+using xekoshop.Interfaces;
+using xekoshop.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Dependency Injection (Discord Webhook)
+builder.Services.AddSingleton<IDiscordWebhook>(
+    new DiscordWebhook(
+        builder.Configuration["Discord:WebhookUrl"] ?? throw new InvalidOperationException("Discord Webhook URL not found."), 
+        builder.Configuration["Discord:WebhookUser"] ?? throw new InvalidOperationException("Discord Webhook User not found."), 
+        builder.Configuration["Discord:WebhookAvatar"] ?? throw new InvalidOperationException("Discord Webhook Avatar not found.")
+        )
+);
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options => {
     options.UseSqlServer(connectionString);

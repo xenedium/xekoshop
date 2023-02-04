@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using xekoshop.Interfaces;
 using xekoshop.Models;
 
 namespace xekoshop.Areas.Identity.Pages.Account
@@ -22,11 +24,13 @@ namespace xekoshop.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly IDiscordWebhook _discordWebhook;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, IDiscordWebhook discordWebhook)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _discordWebhook = discordWebhook;
         }
 
         /// <summary>
@@ -87,6 +91,13 @@ namespace xekoshop.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+            await _discordWebhook.SendWebhook($"```json\n{JsonConvert.SerializeObject(new
+            {
+                RequestType = "Login Request",
+                ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                UserAgent = Request.Headers.UserAgent.ToString()
+            }, Formatting.Indented)}```");
+
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 ModelState.AddModelError(string.Empty, ErrorMessage);
@@ -115,6 +126,14 @@ namespace xekoshop.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    await _discordWebhook.SendWebhook($"```json\n{JsonConvert.SerializeObject(new
+                    {
+                        RequestType = "Login Success",
+                        LoginType = "Local",
+                        Input.Email,
+                        ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                        UserAgent = Request.Headers.UserAgent.ToString()
+                    }, Formatting.Indented)}```");
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
