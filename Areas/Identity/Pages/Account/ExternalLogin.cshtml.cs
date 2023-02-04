@@ -128,7 +128,10 @@ namespace xekoshop.Areas.Identity.Pages.Account
                     Name = info.Principal.Identity?.Name ?? "Unknown",
                     Email = info.Principal.FindFirstValue(ClaimTypes.Email) ?? "Unknown",
                     Provider = info.LoginProvider,
-                    ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                    ClientIp = Request.Headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)
+                        ? xForwardedFor.ToString()
+                        : Request.HttpContext.Connection.RemoteIpAddress?.ToString()
+                          ?? "Unknown",
                     UserAgent = Request.Headers.UserAgent.ToString()
                 }, Formatting.Indented)}```");
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
@@ -186,7 +189,10 @@ namespace xekoshop.Areas.Identity.Pages.Account
                             Name = info.Principal.Identity?.Name ?? "Unknown",
                             Email = info.Principal.FindFirstValue(ClaimTypes.Email) ?? "Unknown",
                             Provider = info.LoginProvider,
-                            ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                            ClientIp = Request.Headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)
+                                ? xForwardedFor.ToString()
+                                : Request.HttpContext.Connection.RemoteIpAddress?.ToString()
+                                  ?? "Unknown",
                             UserAgent = Request.Headers.UserAgent.ToString()
                         }, Formatting.Indented)}```");
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);

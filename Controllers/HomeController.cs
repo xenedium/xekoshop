@@ -37,7 +37,10 @@ public class HomeController : Controller
             user.Id,
             user.UserName,
             user.Email,
-            ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+            ClientIp = Request.Headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)
+                ? xForwardedFor.ToString()
+                : Request.HttpContext.Connection.RemoteIpAddress?.ToString()
+                  ?? "Unknown",
             UserAgent = Request.Headers.UserAgent.ToString()
         }, Formatting.Indented)}```");
         return View();

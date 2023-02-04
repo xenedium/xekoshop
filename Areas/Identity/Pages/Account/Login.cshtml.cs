@@ -94,7 +94,10 @@ namespace xekoshop.Areas.Identity.Pages.Account
             await _discordWebhook.SendWebhook($"```json\n{JsonConvert.SerializeObject(new
             {
                 RequestType = "Login Request",
-                ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                ClientIp = Request.Headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)
+                    ? xForwardedFor.ToString()
+                    : Request.HttpContext.Connection.RemoteIpAddress?.ToString()
+                      ?? "Unknown",
                 UserAgent = Request.Headers.UserAgent.ToString()
             }, Formatting.Indented)}```");
 
@@ -131,7 +134,10 @@ namespace xekoshop.Areas.Identity.Pages.Account
                         RequestType = "Login Success",
                         LoginType = "Local",
                         Input.Email,
-                        ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                        ClientIp = Request.Headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)
+                            ? xForwardedFor.ToString()
+                            : Request.HttpContext.Connection.RemoteIpAddress?.ToString()
+                              ?? "Unknown",
                         UserAgent = Request.Headers.UserAgent.ToString()
                     }, Formatting.Indented)}```");
                     _logger.LogInformation("User logged in.");

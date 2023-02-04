@@ -111,7 +111,10 @@ namespace xekoshop.Areas.Identity.Pages.Account
             await _discordWebhook.SendWebhook($"```json\n{JsonConvert.SerializeObject(new
             {
                 RequestType = "Register Request",
-                ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                ClientIp = Request.Headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)
+                    ? xForwardedFor.ToString()
+                    : Request.HttpContext.Connection.RemoteIpAddress?.ToString()
+                      ?? "Unknown",
                 UserAgent = Request.Headers.UserAgent.ToString()
             }, Formatting.Indented)}```");
             ReturnUrl = returnUrl;
@@ -138,7 +141,10 @@ namespace xekoshop.Areas.Identity.Pages.Account
                         user.Id,
                         user.UserName,
                         user.Email,
-                        ClientIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                        ClientIp = Request.Headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)
+                            ? xForwardedFor.ToString()
+                            : Request.HttpContext.Connection.RemoteIpAddress?.ToString()
+                              ?? "Unknown",
                         UserAgent = Request.Headers.UserAgent.ToString()
                     }, Formatting.Indented)}```");
                     _logger.LogInformation("User created a new account with password.");
