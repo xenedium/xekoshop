@@ -24,8 +24,8 @@ jobs:
         sed -i "s/DATABASE_CONNEXSTR/$DATABASE_CONNEXSTR/g" appsettings.json
         sed -i "s/GOOGLE_CLIENT_ID/$GOOGLE_CLIENT_ID/g" appsettings.json
         sed -i "s/GOOGLE_CLIENT_SECRET/$GOOGLE_CLIENT_SECRET/g" appsettings.json
-        sed -i "s/DISCORD_AVATAR_URL/$DISCORD_AVATAR_URL/g" appsettings.json
-        sed -i "s/DISCORD_WEBHOOK_URL/$DISCORD_WEBHOOK_URL/g" appsettings.json
+        sed -i "s|DISCORD_AVATAR_URL|$DISCORD_AVATAR_URL|g" appsettings.json
+        sed -i "s|DISCORD_WEBHOOK_URL|$DISCORD_WEBHOOK_URL|g" appsettings.json
         sed -i "s/DISCORD_USER/$DISCORD_USER/g" appsettings.json
 
       
