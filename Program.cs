@@ -17,6 +17,7 @@ builder.Services.AddSingleton<IDiscordWebhook>(
         builder.Configuration["Discord:WebhookAvatar"] ?? throw new InvalidOperationException("Discord Webhook Avatar not found.")
         )
 );
+builder.Services.AddScoped<IGeolocationService, GeolocationService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options => {

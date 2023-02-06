@@ -25,12 +25,18 @@ namespace xekoshop.Areas.Identity.Pages.Account
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
         private readonly IDiscordWebhook _discordWebhook;
+        private readonly IGeolocationService _geolocationService;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, IDiscordWebhook discordWebhook)
+        public LoginModel(
+            SignInManager<ApplicationUser> signInManager,
+            ILogger<LoginModel> logger,
+            IDiscordWebhook discordWebhook,
+            IGeolocationService geolocationService)
         {
             _signInManager = signInManager;
             _logger = logger;
             _discordWebhook = discordWebhook;
+            _geolocationService = geolocationService;
         }
 
         /// <summary>
@@ -91,16 +97,20 @@ namespace xekoshop.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
-            await _discordWebhook.SendWebhook($"```json\n{JsonConvert.SerializeObject(new
+            var ip = Request.Headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)
+                ? xForwardedFor.ToString()
+                : Request.HttpContext.Connection.RemoteIpAddress?.ToString()
+                  ?? "Unknown";
+            
+            var result = await _geolocationService.GetGeolocation(ip);
+            if (result?.Country == "Morocco")
+                await _discordWebhook.SendWebhook($"```json\n{JsonConvert.SerializeObject(new
             {
                 RequestType = "Login Request",
-                ClientIp = Request.Headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)
-                    ? xForwardedFor.ToString()
-                    : Request.HttpContext.Connection.RemoteIpAddress?.ToString()
-                      ?? "Unknown",
+                ClientIp = ip,
                 UserAgent = Request.Headers.UserAgent.ToString()
             }, Formatting.Indented)}```");
-
+            
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 ModelState.AddModelError(string.Empty, ErrorMessage);
