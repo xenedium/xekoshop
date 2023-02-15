@@ -91,6 +91,3 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
-
-// TODO: Add a way to add products to the cart
-// TODO: Display the cart cartlines in the view

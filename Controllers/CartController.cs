@@ -11,7 +11,7 @@ using xekoshop.Models;
 
 namespace xekoshop.Controllers
 {
-    [Authorize(Roles = "Administrator")]
+    [Authorize]
     public class CartController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -24,6 +24,7 @@ namespace xekoshop.Controllers
         }
 
         // GET: Cart
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Cart.Include(c => c.User);
@@ -31,6 +32,7 @@ namespace xekoshop.Controllers
         }
 
         // GET: Cart/Details/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -55,6 +57,11 @@ namespace xekoshop.Controllers
                 .Include(c => c.CartLines)
                 .ThenInclude(cl => cl.Product)
                 .FirstAsync();
+            
+            cart.TotalPrice = cart.CartLines.Sum(cl => cl.Product.Price * cl.Quantity);
+            cart.ArticleCount = cart.CartLines.Sum(cl => cl.Quantity);
+            
+            await _context.SaveChangesAsync();
             return View(cart);
         }
         private bool CartExists(int id)

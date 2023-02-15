@@ -28,11 +28,19 @@
             <th>
                 @Html.DisplayNameFor(model => model.Quantity)
             </th>
+            @{
+                if (User.IsInRole("Administrator"))
+                {
+                    <th>
+                        @Html.DisplayNameFor(model => model.CreatedAt)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.UpdatedAt)
+                    </th>
+                }
+            }
             <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
+                Add to Cart
             </th>
             <th></th>
         </tr>
@@ -47,7 +55,7 @@
                 @Html.DisplayFor(modelItem => item.Description)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Image)
+                <img src="@item.Image" alt="@item.Name" width="150" height="150" />
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Price)
@@ -55,11 +63,25 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Quantity)
             </td>
+            @{
+                if (User.IsInRole("Administrator"))
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedAt)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UpdatedAt)
+                    </td>
+                }
+            }
             <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
+                <form asp-controller="CartLine" asp-action="AddToCart">
+                    <input type='number' name="quantity" value="1" />
+                    @{
+                        <input type="text" name="articleId" value="@item.Id" hidden/>
+                    }
+                    <input type="submit" value="Add to Cart"/>
+                </form>
             </td>
             <td>
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> 
