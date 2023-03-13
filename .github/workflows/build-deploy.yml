@@ -41,6 +41,7 @@ jobs:
         echo "$SSH_PRIVATE_KEY" > .ssh/id_rsa
         chmod 600 .ssh/id_rsa
         
+    # Should be using terraform and ansible to deploy the docker image to the VPS
     # - name: Import exported docker image to VPS
     #   run: docker save xekoshop:latest | ssh -i .ssh/id_rsa -o "StrictHostKeyChecking no" -C ${{ secrets.SSH_USER_HOST }} docker load
       
