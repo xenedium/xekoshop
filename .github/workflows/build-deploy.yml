@@ -41,16 +41,16 @@ jobs:
         echo "$SSH_PRIVATE_KEY" > .ssh/id_rsa
         chmod 600 .ssh/id_rsa
         
-    - name: Import exported docker image to VPS
-      run: docker save xekoshop:latest | ssh -i .ssh/id_rsa -o "StrictHostKeyChecking no" -C ${{ secrets.SSH_USER_HOST }} docker load
+    # - name: Import exported docker image to VPS
+    #   run: docker save xekoshop:latest | ssh -i .ssh/id_rsa -o "StrictHostKeyChecking no" -C ${{ secrets.SSH_USER_HOST }} docker load
       
-    - name: Run docker
-      uses: appleboy/ssh-action@v0.1.6
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          docker stop xekoshop || echo "Container already stopped. Skipping..."
-          docker container rm xekoshop || echo "Container does not exist. Skipping..."
-          docker run -d --restart always --name xekoshop -p 5000:5000 -p 5001:5001 xekoshop
+    # - name: Run docker
+    #   uses: appleboy/ssh-action@v0.1.6
+    #   with:
+    #     host: ${{ secrets.SSH_HOST }}
+    #     username: ${{ secrets.SSH_USER }}
+    #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+    #     script: |
+    #       docker stop xekoshop || echo "Container already stopped. Skipping..."
+    #       docker container rm xekoshop || echo "Container does not exist. Skipping..."
+    #       docker run -d --restart always --name xekoshop -p 5000:5000 -p 5001:5001 xekoshop
